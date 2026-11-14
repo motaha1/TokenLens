@@ -2,7 +2,7 @@ name: Deploy TokenLens backend to Azure
 
 on:
   push:
-    branches: [main]
+    branches: [feature/backend-api]
   workflow_dispatch:
 
 jobs:
