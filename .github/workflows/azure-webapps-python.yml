@@ -10,15 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Package backend
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Package backend and dependencies
         run: |
-          git archive --format=zip -o backend.zip HEAD:backend -- . \
+          git archive --format=zip -o source.zip HEAD:backend -- . \
             ':(exclude)TestDBRender.py' \
             ':(exclude,glob)**/*.db' \
             ':(exclude,glob)**/.env*'
+          unzip -q source.zip -d deploy
+          python -m pip install --only-binary=:all: -r deploy/requirements.txt --target deploy/.deps
+          cd deploy
+          zip -qr ../backend.zip .
 
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v3
