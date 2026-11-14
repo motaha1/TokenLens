@@ -1,0 +1,28 @@
+name: Deploy TokenLens backend to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package backend
+        run: |
+          git archive --format=zip -o backend.zip HEAD:backend -- . \
+            ':(exclude)TestDBRender.py' \
+            ':(exclude,glob)**/*.db' \
+            ':(exclude,glob)**/.env*'
+
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: front
+          package: backend.zip
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
